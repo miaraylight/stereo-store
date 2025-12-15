@@ -1,0 +1,1085 @@
+type: collection.insomnia.rest/5.0
+name: Scratch Pad
+meta:
+  id: wrk_scratchpad
+  created: 1752071527395
+  modified: 1752071527395
+  description: ""
+collection:
+  - name: capstone 3 api
+    meta:
+      id: fld_cd9f917e287e46edb82745af3ea55e04
+      created: 1754629727495
+      modified: 1755055557698
+      sortKey: -1754629723345
+      description: ""
+    children:
+      - url: "{{baseUrl}}/register"
+        name: Register
+        meta:
+          id: req_b8b49e38d1e0488082a98005a0ef07ec
+          created: 1754629727497
+          modified: 1754677172280
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723344
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "username": "{{newUserName}}",
+              "password": "{{newUserPassword}}",
+              "confirmPassword": "{{newUserPassword}}",
+              "role": "USER"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: ""
+          afterResponse: |-
+            insomnia.test("Registration should succeed", function() {
+                insomnia.expect(insomnia.response.code).to.equal(201);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/login"
+        name: Login - new user
+        meta:
+          id: req_6bca9ebbdb134bbb85c0cf74ddd27a7e
+          created: 1754629727498
+          modified: 1754675202898
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723343
+        method: POST
+        body:
+          mimeType: application/json
+          text: "{\r
+
+            \  \"username\": \"{{newUserName}}\",\r
+
+            \  \"password\": \"{{newUserPassword}}\"\r
+
+            }"
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: ""
+          afterResponse: >-
+            insomnia.environment.set("userToken",
+            insomnia.response.json().token);
+
+
+            insomnia.test("User Login should create token", function() {
+               	insomnia.expect(insomnia.response.code).to.equal(200);
+                insomnia.expect(insomnia.response.body).to.not.equal(undefined);
+                insomnia.expect(insomnia.environment.get("userToken")).to.not.equal("");
+            })
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/login"
+        name: Login - as admin
+        meta:
+          id: req_bba6fe9831134d09a2f19627da76b227
+          created: 1754629727499
+          modified: 1755053729541
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723342
+        method: POST
+        body:
+          mimeType: application/json
+          text: "{\r
+
+            \  \"username\": \"admin\",\r
+
+            \  \"password\": \"password\"\r
+
+            }"
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: ""
+          afterResponse: >-
+            // Get the token from response
+
+            const token = insomnia.response.json().token;
+
+
+            // Set token in folder environment
+
+            const myFolder = insomnia.parentFolders.get("capstone 3 api");
+
+            if (myFolder && token) {
+                myFolder.environment.set("adminToken", token);
+                console.log("✓ Token successfully set in folder environment");
+            } else {
+                console.log("✗ Failed to set token:", myFolder ? "Token is null/undefined" : "Folder not found");
+            }
+
+
+            // Test with proper syntax
+
+            insomnia.test("Admin Login should succeed", function() {
+
+                // Verify response status
+                insomnia.expect(insomnia.response.code).to.equal(200);
+                
+                // Verify token exists in response
+                const responseToken = insomnia.response.json().token;
+            		insomnia.expect(responseToken).to.be.a('string');
+                
+                // Verify token was set in folder environment
+                if (myFolder) {
+                    const folderToken = myFolder.environment.get("adminToken");
+                    insomnia.expect(folderToken).to.equal(responseToken);
+                    console.log("✓ Token verified in folder environment");
+                }
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/categories"
+        name: Get Categories
+        meta:
+          id: req_b937279a2dab48a5843bd6c067909076
+          created: 1754629727500
+          modified: 1754629727500
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723341
+        method: GET
+        scripts:
+          preRequest: ""
+          afterResponse: "var items = insomnia.response.json();\r
+
+            \r
+
+            insomnia.test(\"Categories should be \" + items.length, function()
+            {\r
+
+            \    insomnia.response.to.have.status(200);\r
+
+            \    insomnia.expect(items.length).to.equal(3);\r
+
+            });"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/categories"
+        name: Add Category - not admin
+        meta:
+          id: req_d44ba137490d4f6d8d902d03021ce061
+          created: 1754629727500
+          modified: 1754666480876
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723340
+        method: POST
+        body:
+          mimeType: application/json
+          text: "{\r
+
+            \    \"name\": \"Demo\",\r
+
+            \    \"description\": \"Some demo category.\"\r
+
+            }"
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{userToken}}"
+          prefix: ""
+        scripts:
+          preRequest: ""
+          afterResponse: >-
+            
+            insomnia.test("Category insert as non admin should fail", function()
+            {
+                insomnia.response.to.have.status(401);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/categories"
+        name: Get Categories
+        meta:
+          id: req_0b139501f39644198b5d924ce8493905
+          created: 1754629727501
+          modified: 1754629727501
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723339
+        method: GET
+        scripts:
+          preRequest: ""
+          afterResponse: "var items = insomnia.response.json();\r
+
+            \r
+
+            insomnia.test(\"Categories should be \" + items.length, function()
+            {\r
+
+            \    insomnia.response.to.have.status(200);\r
+
+            \    insomnia.expect(items.length).to.equal(3);\r
+
+            });"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/categories"
+        name: Add Category - as admin
+        meta:
+          id: req_2957d322892b4807b03626a0574c36b5
+          created: 1754629727501
+          modified: 1755053844758
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723338
+        method: POST
+        body:
+          mimeType: application/json
+          text: "{\r
+
+            \    \"name\": \"Demo\",\r
+
+            \    \"description\": \"Some demo category.\"\r
+
+            }"
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{adminToken}}"
+        scripts:
+          preRequest: ""
+          afterResponse: >-
+            // Get the categoryId from response
+
+            const categoryId = insomnia.response.json().categoryId;
+
+            const name = insomnia.response.json().name;
+
+
+            // Set categoryId in folder environment
+
+            const myFolder = insomnia.parentFolders.get("capstone 3 api");
+
+            if (myFolder && categoryId) {
+                myFolder.environment.set("newCategoryId", categoryId);
+                console.log("✓ Category ID successfully set in folder environment:", categoryId);
+            } else {
+                console.log("✗ Failed to set category ID:", myFolder ? "Category ID is null/undefined" : "Folder not found");
+            }
+
+
+            // Test with proper syntax
+
+            insomnia.test("Category insert as admin should succeed", function()
+            {
+                // Verify response status
+                insomnia.expect(insomnia.response.code).to.equal(201);
+                
+                // Verify categoryId exists in response
+                const responseCategoryId = insomnia.response.json().categoryId;
+                insomnia.expect(responseCategoryId).to.be.a('number'); // or 'number' if it's numeric
+                
+                // Verify name
+                insomnia.expect(name).to.equal("Demo");
+                
+                // Verify categoryId was set in folder environment
+                if (myFolder) {
+                    const folderCategoryId = myFolder.environment.get("newCategoryId");
+                    insomnia.expect(folderCategoryId).to.equal(responseCategoryId);
+                    console.log("✓ Category ID verified in folder environment");
+                }
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/categories/{{newCategoryId}}"
+        name: Get New Category By Id
+        meta:
+          id: req_527722c68f3b4dd7aac5525052cc0653
+          created: 1754629727501
+          modified: 1754675512133
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723336
+        method: GET
+        scripts:
+          preRequest: ""
+          afterResponse: "var name = insomnia.response.json().name;\r
+
+            \r
+
+            insomnia.test(\"Get new category by id should succeed\", function()
+            {\r
+
+            \    insomnia.response.to.have.status(200);\r
+
+            \    insomnia.expect(name).to.equal(\"Demo\");\r
+
+            });"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/categories"
+        name: Get Categories - after add
+        meta:
+          id: req_e7f0b36cb8a54093a15b87dad0bc0dda
+          created: 1754629727501
+          modified: 1754629727501
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723337
+        method: GET
+        scripts:
+          preRequest: ""
+          afterResponse: "var items = insomnia.response.json();\r
+
+            \r
+
+            insomnia.test(\"Categories should be \" + items.length, function()
+            {\r
+
+            \    insomnia.response.to.have.status(200);\r
+
+            \    insomnia.expect(items.length).to.equal(4);\r
+
+            });"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/categories/{{newCategoryId}}"
+        name: Get Category By Id - after delete
+        meta:
+          id: req_0d5b945b88fc42749af43f4fae0c999b
+          created: 1754629727502
+          modified: 1754629727502
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723334
+        method: GET
+        scripts:
+          preRequest: ""
+          afterResponse: "insomnia.test(\"Get new category after delete should not be
+            found \", function() {\r
+
+            \    insomnia.response.to.have.status(404);\r
+
+            });"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/categories/{{newCategoryId}}"
+        name: Delete Category - as admin
+        meta:
+          id: req_1490cc951c3747d39a3f684d50646882
+          created: 1754629727502
+          modified: 1754629727502
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723335
+        method: DELETE
+        body:
+          mimeType: application/json
+          text: "{\r
+
+            \    \"name\": \"Demo\",\r
+
+            \    \"description\": \"Some demo category.\"\r
+
+            }"
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{adminToken}}"
+          prefix: ""
+        scripts:
+          preRequest: ""
+          afterResponse: "insomnia.test(\"Delete new category should succeed\", function()
+            {\r
+
+            \    insomnia.response.to.have.status(204);\r
+
+            });"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/products"
+        name: Search Products
+        meta:
+          id: req_defdcc208c6b46b68cbbbaf254e62d5b
+          created: 1754629727502
+          modified: 1755055394368
+          isPrivate: false
+          description: ""
+          sortKey: -1754629723333
+        method: GET
+        parameters:
+          - name: cat
+            value: "3"
+            disabled: false
+            id: pair_185f1b07a0bd426d92ae376b24f8508b
+          - name: minPrice
+            value: "80"
+            disabled: false
+            id: pair_1ca44c6c8a9b4d42939ffb2da971de21
+          - name: maxPrice
+            value: "90"
+            disabled: false
+            id: pair_381264dcd8324ab09bdfaffadeed0aa6
+        scripts:
+          preRequest: ""
+          afterResponse: |-
+            var data = insomnia.response.json();
+
+            insomnia.test('Number of products = ' + data.length, function () {
+                insomnia.expect(data.length).to.equal(1);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    scripts:
+      afterResponse: ""
+      preRequest: ""
+    environment:
+      userToken: userToken
+      adminToken: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU1MTYzNTU3fQ.16WP1nqnZw3rwU9L5zFItkO9N9WKKxOocYguMRUVZZcFjOVXG6RI1m06pyWP31VSShYis9SaH7uUdXJ7txbGKg
+      newCategoryId: 4
+      baseUrl: http://localhost:8080
+      newUserName: gary
+      newUserPassword: thePass
+    environmentPropertyOrder:
+      "&":
+        - userToken
+        - adminToken
+        - newCategoryId
+        - baseUrl
+        - newUserName
+        - newUserPassword
+  - name: capstone 3 api - (optional)
+    meta:
+      id: fld_06f34fe56cab46388988a2242699ad8d
+      created: 1754676158563
+      modified: 1755055560528
+      sortKey: -1754676155772
+      description: ""
+    children:
+      - url: "{{baseUrl}}/login"
+        name: Login - new user
+        meta:
+          id: req_24f01d6f45774be18c56fb4c84878e84
+          created: 1754676158565
+          modified: 1755053909281
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155771
+        method: POST
+        body:
+          mimeType: application/json
+          text: "{\r
+
+            \  \"username\": \"{{newUserName}}\",\r
+
+            \  \"password\": \"{{newUserPassword}}\"\r
+
+            }"
+        headers:
+          - name: Content-Type
+            value: application/json
+        scripts:
+          preRequest: ""
+          afterResponse: >-
+            // Get the token from response
+
+            const token = insomnia.response.json().token;
+
+
+            // Set token in folder environment
+
+            const myFolder = insomnia.parentFolders.get("capstone 3 api -
+            (optional)");
+
+            if (myFolder && token) {
+                myFolder.environment.set("userToken", token);
+                console.log("✓ User token successfully set in folder environment");
+            } else {
+                console.log("✗ Failed to set user token:", myFolder ? "Token is null/undefined" : "Folder not found");
+            }
+
+
+            // Test with proper syntax
+
+            insomnia.test("User Login should create token", function() {
+                // Verify response status code
+                insomnia.expect(insomnia.response.code).to.equal(200);
+                
+                // Verify token exists in response
+                const responseToken = insomnia.response.json().token;
+                insomnia.expect(responseToken).to.be.a('string');
+                
+                // Verify token was set in folder environment
+                if (myFolder) {
+                    const folderToken = myFolder.environment.get("userToken");
+                    insomnia.expect(folderToken).to.equal(responseToken);
+                    console.log("✓ User token verified in folder environment");
+                }
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/profile"
+        name: Get Profile - new user
+        meta:
+          id: req_ecb7a1af7a554890a4ada0d705b36a38
+          created: 1754676158566
+          modified: 1754676158566
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155770
+        method: GET
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{userToken}}"
+          prefix: ""
+        scripts:
+          preRequest: ""
+          afterResponse: "\r
+
+            insomnia.test(\"Get UserProfile should succeed\", function() {\r
+
+            \    insomnia.response.to.have.status(200);\r
+
+            });"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/cart/products/12"
+        name: Add Product to Cart - no auth - should fail
+        meta:
+          id: req_1044c186d91f4e5a8cd5fbcd4fdee62b
+          created: 1754676158567
+          modified: 1754676158567
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155768
+        method: POST
+        scripts:
+          preRequest: ""
+          afterResponse: "insomnia.test(\"Add to cart without login should fail\",
+            function() {\r
+
+            \    insomnia.response.to.have.status(401);\r
+
+            });"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/cart"
+        name: Get Cart while not logged in should not be authorized
+        meta:
+          id: req_59c2c9fbf055477789bf76c33182c346
+          created: 1754676158567
+          modified: 1754676158567
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155767
+        method: GET
+        scripts:
+          preRequest: ""
+          afterResponse: "\r
+
+            insomnia.test(\"Get cart logged in should return 401\", function()
+            {\r
+
+            \    insomnia.response.to.have.status(401);\r
+
+            });"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/profile"
+        name: Edit Profile - new user
+        meta:
+          id: req_a892f5a4573e4485acdeb34c7e0544bb
+          created: 1754676158567
+          modified: 1754676158567
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155769
+        method: PUT
+        body:
+          mimeType: application/json
+          text: "{\r
+
+            \    \"userId\": 3,\r
+
+            \    \"firstName\": \"Joe\",\r
+
+            \    \"lastName\": \"Tester\",\r
+
+            \    \"phone\": \"888-456-9876\",\r
+
+            \    \"email\": \"j.tester@test.net\",\r
+
+            \    \"address\": \"123 test st\",\r
+
+            \    \"city\": \"some city\",\r
+
+            \    \"state\": \"ST\",\r
+
+            \    \"zip\": \"12121\"\r
+
+            }"
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{userToken}}"
+          prefix: ""
+        scripts:
+          preRequest: ""
+          afterResponse: "\r
+
+            insomnia.test(\"Update UserProfile should succeed\", function() {\r
+
+            \    insomnia.response.to.have.status(200);\r
+
+            });"
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/cart"
+        name: Get Cart while cart is empty
+        meta:
+          id: req_00a9035f1b664c758ad986e8a46e676e
+          created: 1754676158568
+          modified: 1754926979450
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155766
+        method: GET
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{userToken}}"
+          prefix: ""
+        scripts:
+          preRequest: ""
+          afterResponse: >-
+            // Get the response data
+
+            const items = insomnia.response.json().items;
+
+            const total = insomnia.response.json().total;
+
+
+            // Test with proper syntax
+
+            insomnia.test("Get cart logged in should succeed", function() {
+                // Verify response status code
+                insomnia.expect(insomnia.response.code).to.equal(200);
+                
+                // Verify items object is empty (no keys)
+                insomnia.expect(Object.keys(items)).to.have.lengthOf(0);
+                
+                // Verify total is 0
+                insomnia.expect(total).to.equal(0);
+                
+                console.log("✓ Empty cart validation passed - no items and total is 0");
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/cart"
+        name: Clear Cart
+        meta:
+          id: req_857a8c1c2e9840219624a2487b3effa1
+          created: 1754676158568
+          modified: 1755053790028
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155765
+        method: DELETE
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{userToken}}"
+          prefix: ""
+        scripts:
+          preRequest: ""
+          afterResponse: |-
+            var items = insomnia.response.json().items;
+            var total = insomnia.response.json().total;
+
+            insomnia.test('Cart should be empty', function () {
+                insomnia.expect(total).to.equal(0);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/cart/products/12"
+        name: Add Product to Cart - with auth - should succeed
+        meta:
+          id: req_c92218bdd3e54e1e96b689b350ea3854
+          created: 1754676158568
+          modified: 1755054295407
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155764
+        method: POST
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{userToken}}"
+          prefix: ""
+        scripts:
+          preRequest: ""
+          afterResponse: |-
+            // Get the response data
+            const items = insomnia.response.json().items;
+            const total = insomnia.response.json().productId;
+
+            // Test with proper syntax
+            insomnia.test("Add to cart logged in should succeed", function() {
+                // Verify response status code
+                insomnia.expect(insomnia.response.code).to.equal(201);
+                
+                // Verify items object is not empty (has keys)
+                insomnia.expect(Object.keys(items)).to.have.lengthOf.above(0);
+                
+                
+                console.log("✓ Cart validation passed - items exist");
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/orders"
+        name: Create Order
+        meta:
+          id: req_0f93faa63fe34f1ca49f24d791514307
+          created: 1754676158569
+          modified: 1755053803862
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155761
+        method: POST
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{userToken}}"
+          prefix: ""
+        scripts:
+          preRequest: ""
+          afterResponse: >-
+            // Get the response data
+
+            const responseData = insomnia.response.json();
+
+
+            // Test with proper syntax
+
+            insomnia.test("Create should return order details", function() {
+                // Verify response status code
+                insomnia.expect(insomnia.response.code).to.equal(201);
+                
+                // Verify response has multiple properties (more than 2)
+              insomnia.expect(Object.keys(responseData)).to.have.lengthOf.above(2);
+                
+                console.log("✓ Order created with multiple details returned");
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/cart"
+        name: Get Cart
+        meta:
+          id: req_2eb1be66b4ee4489879759b681648747
+          created: 1754676158569
+          modified: 1755054378642
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155762
+        method: GET
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{userToken}}"
+          prefix: ""
+        scripts:
+          preRequest: ""
+          afterResponse: |-
+            var items = insomnia.response.json().items;
+            var total = insomnia.response.json().total;
+
+            insomnia.test("Get cart logged in should succeed", function() {
+                insomnia.response.to.have.status(200);
+                insomnia.expect(total).to.be.above(1);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/cart/products/21"
+        name: Add another Product to Cart - with auth
+        meta:
+          id: req_f439689ff8f3453d95328e8225bebb4d
+          created: 1754676158569
+          modified: 1755054355422
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155763
+        method: POST
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{userToken}}"
+          prefix: ""
+        scripts:
+          preRequest: ""
+          afterResponse: >-
+            // Get the response data
+
+            const items = insomnia.response.json().items;
+
+            const total = insomnia.response.json().total;
+
+
+            // Test with proper syntax
+
+            insomnia.test("Add additional to cart logged in should succeed",
+            function() {
+                // Verify response status code
+                insomnia.expect(insomnia.response.code).to.equal(201);
+                
+                // Verify items object is not empty (has keys)
+                insomnia.expect(Object.keys(items)).to.have.lengthOf.above(0);
+                
+                
+                console.log("✓ Cart validation passed - items exist");
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{baseUrl}}/cart"
+        name: Get Cart After Checkout
+        meta:
+          id: req_54336b9bf3a24055adbfa5ac9342f610
+          created: 1754676158570
+          modified: 1754926610012
+          isPrivate: false
+          description: ""
+          sortKey: -1754676155760
+        method: GET
+        authentication:
+          type: bearer
+          disabled: false
+          token: "{{userToken}}"
+          prefix: ""
+        scripts:
+          preRequest: ""
+          afterResponse: |-
+            var items = insomnia.response.json().items;
+            var total = insomnia.response.json().total;
+
+            insomnia.test("Get cart logged in should succeed", function() {
+                insomnia.expect(insomnia.response.code).to.equal(200);
+                insomnia.expect(Object.keys(items)).to.have.lengthOf(0);
+                insomnia.expect(total).to.equal(0);
+            });
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+    scripts:
+      afterResponse: ""
+      preRequest: ""
+    environment:
+      userToken: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnYXJ5IiwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTc1NTE2MzU2MH0.jp3yxGPazaRABZByzSNPlgn6m2XVenm06NDww7qyEnumcyMXK04diJc6bgMIjsmb_ojtGhDDN8b5RlONrFYdvQ
+      adminToken: adminToken
+      newCategoryId: newCategoryId
+      baseUrl: http://localhost:8080
+      newUserName: gary
+      newUserPassword: thePass
+    environmentPropertyOrder:
+      "&":
+        - userToken
+        - adminToken
+        - newCategoryId
+        - baseUrl
+        - newUserName
+        - newUserPassword
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1752071537871
+    modified: 1755055560527
+  cookies:
+    - id: 5899a4e5-473b-4f38-97ec-10fe9a78c1d4
+      key: AEC
+      value: AVh_V2g3XNQLcd9redbJsw3iQmtuxMCx-OVkB3HOosjstajGrw-NJEYy1TI
+      domain: google.com
+      path: /
+      secure: true
+      httpOnly: true
+      creation: 2025-08-07T14:18:31.008Z
+      lastAccessed: 2025-08-07T14:23:19.814Z
+    - id: 6d01fa7a-93da-4baf-bf88-d77b1063c95c
+      key: NID
+      value: 525=k27rx2n9CZxK2LVS7c0x_vL4gkqdZhD1O7hBbShcelu827qQNV-5f-DeyHK-pFVnq-c2C1kME2ZmBl8IcL5Vtunri_cIgoWuaXw-lpZA14zx5DfhnCJax-b3suOfXgHqMGpIKFhsGaElbj6rjiTA6yDqlGRjVB73TbFbNnTNVnuX13xje0fbwdVDQRqpgqzR7wM4nS4DLz6EzpgHS81L48-M
+      domain: google.com
+      path: /
+      secure: false
+      httpOnly: true
+      creation: 2025-08-07T14:18:31.012Z
+      lastAccessed: 2025-08-07T14:18:31.012Z
+environments:
+  name: Base Environment
+  meta:
+    id: env_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1752071537812
+    modified: 1755055560528
+    isPrivate: false
+  data:
+    userToken: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnYXJ5IiwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTc1NTE2MzU1N30.S39hYguEMYdDHHe-scbc54jQsD5ErzDILX1YLD2ga1JJVHx2UZ4-q1sQaUcsWRIzIJ3cO3jJASiGCVoDzFx5tw
+    adminToken: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU0Nzc2ODIzfQ.oxKcGGqXIctsxJMN2uyCnDH-HYMPz3xM9VyjlhEVkPJ8GHPdOKVs2KMzI07H-ztna6YaYn8Mz863yHK5TKRoeA
+    newCategoryId: 22
+    _adminToken: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNzU0Nzc2MzM0fQ.REzA9jC0iuFQEEmVx10WdXLQ70IoNiG-knOpYvySIl5wh40j98l37zENa0ulgH5kjwxyIKGWfGZZwGM9cprYkA
