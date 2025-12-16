@@ -9,7 +9,7 @@ class ShoppingCartService {
 
     addToCart(productId)
     {
-        const url = `${config.baseUrl}/cart/products/${productId}`;
+        const url = apiUrl(`/cart/products/${productId}`);
         // const headers = userService.getHeaders();
 
         axios.post(url, {})// ,{headers})
@@ -46,7 +46,7 @@ class ShoppingCartService {
     loadCart()
     {
 
-        const url = `${config.baseUrl}/cart`;
+        const url = apiUrl(`/cart`);
 
         axios.get(url)
             .then(response => {
@@ -144,7 +144,7 @@ class ShoppingCartService {
     clearCart()
     {
 
-        const url = `${config.baseUrl}/cart`;
+        const url = apiUrl(`/cart`);
 
         axios.delete(url)
              .then(response => {

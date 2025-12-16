@@ -29,10 +29,10 @@ public class TestDatabaseConfig
     private final String password;
 
     @Autowired
-    public TestDatabaseConfig(@Value("${datasource.url}") String serverUrl,
-                              @Value("${datasource.username}") String username,
-                              @Value("${datasource.password}") String password,
-                              @Value("${datasource.testdb}") String testDb)
+    public TestDatabaseConfig(@Value("${spring.datasource.url}") String serverUrl,
+                              @Value("${spring.datasource.username}") String username,
+                              @Value("${spring.datasource.password}") String password,
+                              @Value("${spring.datasource.testdb}") String testDb)
     {
         this.serverUrl = serverUrl;
         this.testDb = testDb;
@@ -40,18 +40,18 @@ public class TestDatabaseConfig
         this.password = password;
     }
 
-    @PostConstruct
-    public void setup() {
-
-        try(Connection connection = DriverManager.getConnection(serverUrl + "/sys", username, password);
-            Statement statement = connection.createStatement();
-        )
-        {
-            statement.execute("DROP DATABASE IF EXISTS " + testDb + ";");
-            statement.execute("CREATE DATABASE " + testDb + ";");
-        }
-        catch (SQLException ignored) {}
-    }
+//    @PostConstruct // moved it into dataSource creation
+//    public void setup() {
+//
+//        try(Connection connection = DriverManager.getConnection(serverUrl + "/sys", username, password);
+//            Statement statement = connection.createStatement();
+//        )
+//        {
+//            statement.execute("DROP DATABASE IF EXISTS " + testDb + ";");
+//            statement.execute("CREATE DATABASE " + testDb + ";");
+//        }
+//        catch (SQLException ignored) {}
+//    }
 
     @PreDestroy
     public void cleanup() {
@@ -70,8 +70,19 @@ public class TestDatabaseConfig
     @Bean
     public DataSource dataSource() throws SQLException, IOException
     {
+        // 1. Create the database first using a connection to a non-specific schema (like /sys)
+        try(Connection connection = DriverManager.getConnection(serverUrl + "/sys", username, password);
+            Statement statement = connection.createStatement();
+        )
+        {
+            // Dropping and recreating ensures a clean state for testing
+            statement.execute("DROP DATABASE IF EXISTS " + testDb + ";");
+            statement.execute("CREATE DATABASE " + testDb + ";");
+        }
+        catch (SQLException ignored) {}
+
         SingleConnectionDataSource dataSource = new SingleConnectionDataSource();
-        dataSource.setUrl(String.format("%s/%s", serverUrl, testDb));
+        dataSource.setUrl(String.format(serverUrl + "/" + testDb));
         dataSource.setUsername(username);
         dataSource.setPassword(password);
         dataSource.setAutoCommit(false);

@@ -5,7 +5,7 @@ class CategoryService {
 
     getAllCategories(callback)
     {
-        const url = `${config.baseUrl}/categories`;
+        const url = apiUrl(`/categories`);
 
         return axios.get(url)
             .then(response => {

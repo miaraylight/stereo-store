@@ -34,18 +34,6 @@ public class ProductsController
     {
         try
         {
-            System.out.println("search called with: " +
-                    "categoryId=" + categoryId +
-                    ", minPrice=" + minPrice +
-                    ", maxPrice=" + maxPrice +
-                    ", subCategory=" + subCategory);
-            if (minPrice == null) minPrice = BigDecimal.ZERO;
-            if (maxPrice == null) maxPrice = BigDecimal.valueOf(999999);
-            System.out.println("search called with: " +
-                    "categoryId=" + categoryId +
-                    ", minPrice=" + minPrice +
-                    ", maxPrice=" + maxPrice +
-                    ", subCategory=" + subCategory);
             return productDao.search(categoryId, minPrice, maxPrice, subCategory);
         }
         catch(Exception ex)

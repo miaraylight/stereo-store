@@ -89,7 +89,8 @@ class ProductService {
 
     search()
     {
-        const url = `${config.baseUrl}/products${this.filter.queryString()}`;
+
+        const url = apiUrl(`/products${this.filter.queryString()}`);
 
         axios.get(url)
              .then(response => {

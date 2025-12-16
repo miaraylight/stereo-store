@@ -3,6 +3,7 @@ package org.yearup.data.mysql;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.yearup.models.Product;
 
 import java.math.BigDecimal;
@@ -10,6 +11,7 @@ import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SpringBootTest
 class MySqlProductDaoTest extends BaseDaoTestClass
 {
     private MySqlProductDao dao;
@@ -28,14 +30,14 @@ class MySqlProductDaoTest extends BaseDaoTestClass
         Product expected = new Product()
         {{
             setProductId(1);
-            setName("Smartphone");
-            setPrice(new BigDecimal("499.99"));
+            setName("The Beatles - Abbey Road Vinyl");
+            setPrice(new BigDecimal("29.99"));
             setCategoryId(1);
-            setDescription("A powerful and feature-rich smartphone for all your communication needs.");
-            setSubCategory("Black");
+            setDescription("Classic Beatles album remastered on 180-gram vinyl.");
+            setSubCategory("Rock");
             setStock(50);
-            setFeatured(false);
-            setImageUrl("smartphone.jpg");
+            setFeatured(true);
+            setImageUrl("abbey-road-vinyl.jpg");
         }};
 
         // act

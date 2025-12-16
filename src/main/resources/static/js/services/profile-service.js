@@ -4,7 +4,7 @@ class ProfileService
 {
     loadProfile()
     {
-        const url = `${config.baseUrl}/profile`;
+        const url = apiUrl(`/profile`);
 
         axios.get(url)
              .then(response => {
@@ -21,8 +21,7 @@ class ProfileService
 
     updateProfile(profile)
     {
-
-        const url = `${config.baseUrl}/profile`;
+        const url = apiUrl(`/profile`);
 
         axios.put(url, profile)
              .then(() => {
