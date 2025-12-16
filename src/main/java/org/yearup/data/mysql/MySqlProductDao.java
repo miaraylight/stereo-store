@@ -184,6 +184,11 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
             statement.setInt(9, productId);
 
             statement.executeUpdate();
+
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Updating product failed, no rows affected.");
+            }
         }
         catch (SQLException e)
         {
