@@ -19,10 +19,9 @@ public class Order {
 
     public Order(){ }
 
-    public Order(int orderId, int userId, LocalDateTime date, String address, String city, String state, String zip, BigDecimal shippingAmount, List<OrderLineItem> items) {
+    public Order(int orderId, int userId, String address, String city, String state, String zip, BigDecimal shippingAmount, List<OrderLineItem> items) {
         this.orderId = orderId;
         this.userId = userId;
-        this.date = date;
         this.address = address;
         this.city = city;
         this.state = state;
