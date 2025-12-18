@@ -6,7 +6,6 @@ import org.yearup.models.*;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.time.LocalDateTime;
 
 @Component
 public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
@@ -15,7 +14,7 @@ public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
     }
 
     @Override
-    public Order getByIdWithItems(int orderId) {
+    public Order getByIdWithItems(int orderId, int userId) {
         String sql = """
             SELECT 
                 o.order_id, o.user_id, o.date, o.address, o.city, o.state, o.zip, o.shipping_amount,
@@ -25,7 +24,7 @@ public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
             FROM orders o
             JOIN order_line_items oli ON o.order_id = oli.order_id
             JOIN products p ON oli.product_id = p.product_id
-            WHERE o.order_id = ?
+            WHERE o.order_id = ? AND o.user_id = ?;
         """;
 
         Order order = null;
@@ -34,6 +33,7 @@ public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, orderId);
+            stmt.setInt(2, userId);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -125,7 +125,7 @@ public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
         """;
 
         try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             statement.setInt(1, orderId);
             statement.setInt(2, product.getProductId());
             statement.setBigDecimal(3, product.getPrice());
