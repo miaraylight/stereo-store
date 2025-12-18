@@ -9,6 +9,7 @@ public class OrderLineItem {
     private BigDecimal salesPrice;
     private int quantity;
     private BigDecimal discount;
+    private Product product;
 
     public OrderLineItem() {
     }
@@ -68,5 +69,13 @@ public class OrderLineItem {
 
     public void setDiscount(BigDecimal discount) {
         this.discount = discount;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
     }
 }
