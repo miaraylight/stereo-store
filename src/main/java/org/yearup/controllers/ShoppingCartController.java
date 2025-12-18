@@ -9,7 +9,6 @@ import org.yearup.data.ProductDao;
 import org.yearup.data.ShoppingCartDao;
 import org.yearup.data.UserDao;
 import org.yearup.models.ShoppingCart;
-import org.yearup.models.ShoppingCartItem;
 import org.yearup.models.User;
 
 import java.security.Principal;
@@ -91,7 +90,16 @@ public class ShoppingCartController
         }
     }
 
-    // add a DELETE method to clear all products from the current users cart
-    // https://localhost:8080/cart
+
+    @DeleteMapping
+    public void deleteCart(Principal principal)
+    {
+        String userName = principal.getName();
+
+        User user = userDao.getByUserName(userName);
+
+        int userId = user.getId();
+        shoppingCartDao.clearCart(userId);
+    }
 
 }
