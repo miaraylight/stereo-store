@@ -1,11 +1,8 @@
 package org.yearup.data.mysql;
 
 import org.springframework.stereotype.Component;
-import org.yearup.models.Product;
 import org.yearup.models.Profile;
 import org.yearup.data.ProfileDao;
-import org.yearup.models.ShoppingCart;
-import org.yearup.models.ShoppingCartItem;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -48,7 +45,6 @@ public class MySqlProfileDao extends MySqlDaoBase implements ProfileDao
     }
 
     public Profile getByUserId(int userId) {
-        Profile profile = new Profile();
         String sql = """
                 SELECT *
                 FROM profiles
@@ -68,7 +64,47 @@ public class MySqlProfileDao extends MySqlDaoBase implements ProfileDao
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error fetching shopping cart for user ", e);
+            throw new RuntimeException("Error fetching profile ", e);
+        }
+    }
+
+    @Override
+    public Profile update(int userId, Profile profile) {
+        String sql = """
+        UPDATE profiles
+        SET first_name = ?,
+            last_name = ?,
+            phone = ?,
+            email = ?,
+            address = ?,
+            city = ?,
+            state = ?,
+            zip = ?
+        WHERE user_id = ?;
+    """;
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, profile.getFirstName());
+            statement.setString(2, profile.getLastName());
+            statement.setString(3, profile.getPhone());
+            statement.setString(4, profile.getEmail());
+            statement.setString(5, profile.getAddress());
+            statement.setString(6, profile.getCity());
+            statement.setString(7, profile.getState());
+            statement.setString(8, profile.getZip());
+            statement.setInt(9, userId);
+
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new RuntimeException("Profile update failed: no rows affected.");
+            }
+
+            return getByUserId(userId);
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating profile for user ", e);
         }
     }
 
