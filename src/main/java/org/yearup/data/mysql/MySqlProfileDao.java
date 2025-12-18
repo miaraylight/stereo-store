@@ -1,8 +1,11 @@
 package org.yearup.data.mysql;
 
 import org.springframework.stereotype.Component;
+import org.yearup.models.Product;
 import org.yearup.models.Profile;
 import org.yearup.data.ProfileDao;
+import org.yearup.models.ShoppingCart;
+import org.yearup.models.ShoppingCartItem;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -44,4 +47,42 @@ public class MySqlProfileDao extends MySqlDaoBase implements ProfileDao
         }
     }
 
+    public Profile getByUserId(int userId) {
+        Profile profile = new Profile();
+        String sql = """
+                SELECT *
+                FROM profiles
+                WHERE profiles.user_id = ?;
+                """;
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)
+        )
+        {
+            statement.setInt(1, userId);
+            try( ResultSet row = statement.executeQuery()) {
+                if (row.next()) {
+                    return mapRowProfile(row);
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching shopping cart for user ", e);
+        }
+    }
+
+    protected static Profile mapRowProfile(ResultSet row) throws SQLException {
+        Profile profile = new Profile();
+        profile.setUserId(row.getInt("user_id"));
+        profile.setFirstName(row.getString("first_name"));
+        profile.setLastName(row.getString("last_name"));
+        profile.setPhone(row.getString("phone"));
+        profile.setEmail(row.getString("email"));
+        profile.setAddress(row.getString("address"));
+        profile.setCity(row.getString("city"));
+        profile.setState(row.getString("state"));
+        profile.setZip(row.getString("zip"));
+        return profile;
+    }
 }
