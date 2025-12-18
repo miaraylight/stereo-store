@@ -171,7 +171,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
                 " WHERE product_id = ?;";
 
         try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);)
+             PreparedStatement statement = connection.prepareStatement(sql))
         {
             statement.setString(1, product.getName());
             statement.setBigDecimal(2, product.getPrice());

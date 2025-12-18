@@ -16,8 +16,7 @@ public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
     @Override
     public Order getByIdWithItems(int orderId, int userId) {
         String sql = """
-            SELECT 
-                o.order_id, o.user_id, o.date, o.address, o.city, o.state, o.zip, o.shipping_amount,
+            SELECT o.order_id, o.user_id, o.date, o.address, o.city, o.state, o.zip, o.shipping_amount,
                 oli.order_line_item_id, oli.product_id, oli.sales_price, oli.quantity, oli.discount,
                 p.name AS product_name, p.category_id, p.description AS product_description,
                 p.subcategory, p.image_url, p.stock, p.featured
@@ -139,8 +138,7 @@ public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
 
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    int order_line_item_id = generatedKeys.getInt(1);
-                    return order_line_item_id; // I'm done just id here
+                    return generatedKeys.getInt(1); // I'm done just id here
                 } else {
                     throw new SQLException("Creating order line item failed, no ID obtained.");
                 }

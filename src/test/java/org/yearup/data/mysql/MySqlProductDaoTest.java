@@ -188,9 +188,7 @@ class MySqlProductDaoTest extends BaseDaoTestClass
         product.setFeatured(false);
 
         // Act & Assert
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            dao.update(nonExistingId, product);
-        });
+        Exception exception = assertThrows(RuntimeException.class, () -> dao.update(nonExistingId, product));
 
         assertTrue(exception.getMessage().contains("Updating product failed"));
     }

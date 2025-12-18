@@ -17,8 +17,8 @@ import java.util.List;
 @CrossOrigin
 public class CategoriesController
 {
-    private CategoryDao categoryDao;
-    private ProductDao productDao;
+    private final CategoryDao categoryDao;
+    private final ProductDao productDao;
 
 
     @Autowired
@@ -73,9 +73,7 @@ public class CategoriesController
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category with ID " + categoryId + " not found");
             }
 
-            List<Product> products = productDao.listByCategoryId(categoryId);
-
-            return products;
+            return productDao.listByCategoryId(categoryId);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

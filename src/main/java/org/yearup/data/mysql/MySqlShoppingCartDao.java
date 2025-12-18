@@ -80,8 +80,8 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
     @Override
     public void updateCartItem(int productId, int userId, int quantity) {
         String sql = """
-                UPDATE shopping_cart 
-                SET quantity = ? 
+                UPDATE shopping_cart
+                SET quantity = ?
                 WHERE user_id = ? AND product_id = ?;
                 """;
 
