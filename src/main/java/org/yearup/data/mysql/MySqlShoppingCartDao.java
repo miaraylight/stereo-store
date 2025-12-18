@@ -30,7 +30,7 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
                 """;
 
         try (Connection connection = getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
+             PreparedStatement statement = connection.prepareStatement(sql)
              )
         {
             statement.setInt(1, userId);
@@ -49,6 +49,31 @@ public class MySqlShoppingCartDao extends MySqlDaoBase implements ShoppingCartDa
             throw new RuntimeException("Error fetching shopping cart for user ", e);
         }
         return shoppingCart;
+    }
+
+    @Override
+    public ShoppingCart addToCart(int productId, int userId) {
+        String sql = """
+        INSERT INTO shopping_cart (user_id, product_id, quantity)
+        VALUES (?, ?, 1)
+        ON DUPLICATE KEY UPDATE
+            quantity = quantity + 1
+        """;
+
+        try (Connection connection = getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, userId);
+            statement.setInt(2, productId);
+
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Adding product failed, no rows affected.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error adding product to cart", e);
+        }
+        return getByUserId(userId);
     }
 
     protected static Product mapRowProduct(ResultSet row) throws SQLException
