@@ -97,7 +97,11 @@ class ShoppingCartService {
 
         contentDiv.appendChild(cartHeader)
         main.appendChild(contentDiv);
-
+        const checkoutButton = document.createElement("button");
+        checkoutButton.classList.add("btn", "btn-primary", "ms-2");
+        checkoutButton.innerText = "Checkout";
+        checkoutButton.addEventListener("click", () => this.loadCheckoutPage());
+        cartHeader.appendChild(checkoutButton);
         // let parent = document.getElementById("cart-item-list");
         this.cart.items.forEach(item => {
             this.buildItem(item, contentDiv)
@@ -185,6 +189,116 @@ class ShoppingCartService {
 
         }
     }
+
+    loadCheckoutPage() {
+        const main = document.getElementById("main");
+        main.innerHTML = "";
+
+        const contentDiv = document.createElement("div");
+        contentDiv.classList.add("content-form");
+
+        // Header
+        const headerDiv = document.createElement("div");
+        headerDiv.classList.add("page-header");
+        const h1 = document.createElement("h1");
+        h1.innerText = "Checkout";
+        headerDiv.appendChild(h1);
+        contentDiv.appendChild(headerDiv);
+
+        // Form
+        const form = document.createElement("form");
+        form.id = "checkoutForm";
+
+        // Fields: address, city, state, zip
+        const fields = ["address", "city", "state", "zip"];
+        fields.forEach(field => {
+            const formGroup = document.createElement("div");
+            formGroup.classList.add("mb-3");
+
+            const label = document.createElement("label");
+            label.classList.add("form-label");
+            label.setAttribute("for", field);
+            label.innerText = field.charAt(0).toUpperCase() + field.slice(1);
+            formGroup.appendChild(label);
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.classList.add("form-control");
+            input.id = field;
+            input.name = field;
+
+            formGroup.appendChild(input);
+            form.appendChild(formGroup);
+        });
+
+        // Optional: Shipping Amount
+        const shippingGroup = document.createElement("div");
+        shippingGroup.classList.add("mb-3");
+        const shippingLabel = document.createElement("label");
+        shippingLabel.classList.add("form-label");
+        shippingLabel.setAttribute("for", "shippingAmount");
+        shippingLabel.innerText = "Shipping Amount";
+        shippingGroup.appendChild(shippingLabel);
+
+        const shippingInput = document.createElement("input");
+        shippingInput.type = "number";
+        shippingInput.classList.add("form-control");
+        shippingInput.id = "shippingAmount";
+        shippingInput.name = "shippingAmount";
+        shippingInput.value = "0.00";
+        shippingGroup.appendChild(shippingInput);
+        form.appendChild(shippingGroup);
+
+        // Place Order Button
+        const buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("d-flex", "justify-content-end");
+        const placeOrderBtn = document.createElement("button");
+        placeOrderBtn.type = "button";
+        placeOrderBtn.classList.add("btn", "btn-success");
+        placeOrderBtn.innerText = "Place Order";
+        placeOrderBtn.addEventListener("click", () => this.placeOrder());
+        buttonDiv.appendChild(placeOrderBtn);
+
+        form.appendChild(buttonDiv);
+        contentDiv.appendChild(form);
+        main.appendChild(contentDiv);
+
+        // Optional: Pre-fill from profile
+        profileService.getProfile().then(profile => {
+            if(profile) {
+                document.getElementById("address").value = profile.address;
+                document.getElementById("city").value = profile.city;
+                document.getElementById("state").value = profile.state;
+                document.getElementById("zip").value = profile.zip;
+            }
+        });
+    }
+
+    placeOrder() {
+        const url = apiUrl("/orders");
+
+        const orderData = {
+            address: document.getElementById("address").value,
+            city: document.getElementById("city").value,
+            state: document.getElementById("state").value,
+            zip: document.getElementById("zip").value,
+            shippingAmount: parseFloat(document.getElementById("shippingAmount").value)
+        };
+
+        axios.post(url, orderData)
+            .then(response => {
+                alert("Order placed successfully!");
+                this.cart = { items: [], total: 0 };
+                this.updateCartDisplay();
+                this.loadCartPage(); // Optional: redirect to cart or orders page
+            })
+            .catch(error => {
+                console.error(error);
+                alert("Failed to place order. Please try again.");
+            });
+    }
+
+
 }
 
 
