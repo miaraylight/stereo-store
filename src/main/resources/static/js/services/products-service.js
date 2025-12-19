@@ -138,6 +138,16 @@ class ProductService {
         }
     }
 
+    clearAllFilters() {
+        this.filter.cat = undefined;
+        this.filter.minPrice = undefined;
+        this.filter.maxPrice = undefined;
+        this.filter.subCategory = undefined;
+
+        // Refresh the product list
+        this.search();
+    }
+
 }
 
 

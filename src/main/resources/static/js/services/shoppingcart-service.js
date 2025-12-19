@@ -88,21 +88,41 @@ class ShoppingCartService {
         h1.innerText = "Cart";
         cartHeader.appendChild(h1);
 
+        const btnWrapper = document.createElement("div")
+
         const button = document.createElement("button");
         button.classList.add("btn")
         button.classList.add("btn-danger")
         button.innerText = "Clear";
         button.addEventListener("click", () => this.clearCart());
-        cartHeader.appendChild(button)
+        btnWrapper.appendChild(button)
 
         contentDiv.appendChild(cartHeader)
         main.appendChild(contentDiv);
         const checkoutButton = document.createElement("button");
-        checkoutButton.classList.add("btn", "btn-primary", "ms-2");
+        checkoutButton.classList.add("btn", "btn-success", "ms-2");
         checkoutButton.innerText = "Checkout";
         checkoutButton.addEventListener("click", () => this.loadCheckoutPage());
-        cartHeader.appendChild(checkoutButton);
+        btnWrapper.appendChild(checkoutButton);
         // let parent = document.getElementById("cart-item-list");
+        cartHeader.appendChild(btnWrapper);
+
+        const totalContainer = document.createElement("div");
+        totalContainer.classList.add("cart-total-section", "d-flex", "justify-content-between", "align-items-center", "mt-4", "p-3");
+        totalContainer.style.borderTop = "2px solid #eee";
+
+        const totalLabel = document.createElement("h3");
+        totalLabel.innerText = "Total Amount:";
+
+        const totalAmount = document.createElement("h2");
+        totalAmount.classList.add("text-success");
+        // Format the number to 2 decimal places
+        totalAmount.innerText = `$${this.cart.total.toFixed(2)}`;
+
+        totalContainer.appendChild(totalLabel);
+        totalContainer.appendChild(totalAmount);
+        contentDiv.appendChild(totalContainer);
+
         this.cart.items.forEach(item => {
             this.buildItem(item, contentDiv)
         });
@@ -157,12 +177,6 @@ class ShoppingCartService {
                      total: 0
                  }
 
-                 this.cart.total = response.data.total;
-
-                 for (const [key, value] of Object.entries(response.data.items)) {
-                     this.cart.items.push(value);
-                 }
-
                  this.updateCartDisplay()
                  this.loadCartPage()
 
@@ -194,7 +208,12 @@ class ShoppingCartService {
         const main = document.getElementById("main");
         main.innerHTML = "";
 
-        const contentDiv = document.createElement("div");
+        let div = document.createElement("div");
+        div.classList="filter-box";
+        main.appendChild(div);
+
+        const contentDiv = document.createElement("div")
+        contentDiv.id = "content";
         contentDiv.classList.add("content-form");
 
         // Header
@@ -287,14 +306,16 @@ class ShoppingCartService {
 
         axios.post(url, orderData)
             .then(response => {
-                alert("Order placed successfully!");
-                this.cart = { items: [], total: 0 };
-                this.updateCartDisplay();
-                this.loadCartPage(); // Optional: redirect to cart or orders page
+             const data = {message: "Order placed successfully!"};
+            templateBuilder.append("message", data, "errors")
+            this.cart = { items: [], total: 0 };
+            this.updateCartDisplay();
+            this.loadCartPage(); // Optional: redirect to cart or orders page
             })
             .catch(error => {
-                console.error(error);
-                alert("Failed to place order. Please try again.");
+             const data = {error: "Failed to place order. Please try again."};
+             templateBuilder.append("error", data, "errors")
+             console.error(error);
             });
     }
 

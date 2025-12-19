@@ -15,7 +15,7 @@
     </div>
     <div>
         <label for="max-price" class="form-label">Maximum Price: $ <span id="max-price-display">2000</span></label>
-        <input type="range" class="form-range" id="max-price" min="501" max="2000" value="2000" onchange="setMaxPrice(this)">
+        <input type="range" class="form-range" id="max-price" min="10" max="2000" value="2000" onchange="setMaxPrice(this)">
     </div>
 
     <div class="form-floating mb-3">
@@ -36,6 +36,10 @@
         </select>
         <label for="subcategory-select">Genre</label>
     </div>
-
+    <div class="filter-box">
+        <button type="button" class="btn btn-outline-secondary w-100 mt-3" onclick="clearFilters()">
+            Clear All Filters
+        </button>
+    </div>
 </div>
 <div id="content" class="content"></div>
