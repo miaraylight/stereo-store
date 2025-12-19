@@ -27,26 +27,35 @@ public class ProfileController {
 
     @GetMapping
     public Profile getProfile(Principal principal) {
-        try
-        {
-            int userId = userDao.getByUserName(principal.getName()).getId();
+        if (principal == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "User is not authenticated"
+            );
+        }
 
-            return profileDao.getByUserId(userId);
+        var user = userDao.getByUserName(principal.getName());
+        if (user == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "User not found"
+            );
         }
-        catch(Exception e)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad.");
+
+        Profile profile = profileDao.getByUserId(user.getId());
+        if (profile == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Profile not found"
+            );
         }
+
+        return profile;
     }
 
     @PutMapping
     public Profile update(@RequestBody Profile profile, Principal principal) {
-        try{
-            int userId = userDao.getByUserName(principal.getName()).getId();
-
-            return profileDao.update(userId, profile);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        int userId = userDao.getByUserName(principal.getName()).getId();
+        return profileDao.update(userId, profile);
     }
 }

@@ -1,12 +1,14 @@
 package org.yearup.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.yearup.data.UserDao;
 import org.yearup.models.Order;
 import org.yearup.services.OrderService;
 
+import java.net.URI;
 import java.security.Principal;
 
 @RestController
@@ -23,10 +25,13 @@ public class OrdersController {
         this.orderService = orderService;
     }
 
-
     @PostMapping
-    public void checkout(@RequestBody Order order, Principal principal) {
+    public ResponseEntity<Void> checkout(@RequestBody Order order, Principal principal) {
         int userId = userDao.getByUserName(principal.getName()).getId();
-        orderService.checkout(userId, order);
+        Order createdOrder = orderService.checkout(userId, order);
+
+        return ResponseEntity
+                .created(URI.create("/orders/" + createdOrder.getOrderId()))
+                .build();
     }
 }

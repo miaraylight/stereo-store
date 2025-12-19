@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yearup.data.OrderDao;
+import org.yearup.data.ProfileDao;
 import org.yearup.data.ShoppingCartDao;
 import org.yearup.models.Order;
 import org.yearup.models.ShoppingCart;
@@ -15,7 +16,6 @@ import java.time.LocalDateTime;
 public class OrderService {
     private final OrderDao orderDao;
     private final ShoppingCartDao shoppingCartDao;
-
     @Autowired
     public OrderService(OrderDao orderDao, ShoppingCartDao shoppingCartDao) {
         this.orderDao = orderDao;
