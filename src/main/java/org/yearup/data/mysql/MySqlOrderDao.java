@@ -17,9 +17,9 @@ public class MySqlOrderDao extends MySqlDaoBase implements OrderDao {
     public Order getByIdWithItems(int orderId, int userId) {
         String sql = """
             SELECT o.order_id, o.user_id, o.date, o.address, o.city, o.state, o.zip, o.shipping_amount,
-                oli.order_line_item_id, oli.product_id, oli.sales_price, oli.quantity, oli.discount,
-                p.name AS product_name, p.category_id, p.description AS product_description,
-                p.subcategory, p.image_url, p.stock, p.featured
+                    oli.order_line_item_id, oli.product_id, oli.sales_price, oli.quantity, oli.discount,
+                    p.name AS product_name, p.category_id, p.description AS product_description,
+                    p.subcategory, p.image_url, p.stock, p.featured
             FROM orders o
             JOIN order_line_items oli ON o.order_id = oli.order_id
             JOIN products p ON oli.product_id = p.product_id
